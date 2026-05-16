@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Employer Dashboard – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Employer</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/employer/dashboard}" class="active">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/employer/post-job}">
+                <span class="nav-icon">&#43;</span> Post a Job
+            </a>
+            <a th:href="@{/employer/my-jobs}">
+                <span class="nav-icon">&#9670;</span> My Jobs
+            </a>
+            <a th:href="@{/employer/profile}">
+                <span class="nav-icon">&#9633;</span> Company Profile
+            </a>
+            <a th:href="@{/employer/on-hold}">
+                <span class="nav-icon">&#8987;</span> On Hold
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Employer Dashboard</h3>
+            <span class="user-info">
+                <strong th:text="${employer.company != null ? employer.company : employer.name}">Company</strong>
+            </span>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Jobs Posted</div>
+                    <div class="stat-value blue" th:text="${jobCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Applications</div>
+                    <div class="stat-value green" th:text="${appCount}">0</div>
+                </div>
+            </div>
+
+            <!-- Recent Jobs -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Job Postings</h4>
+                    <a th:href="@{/employer/post-job}" class="btn btn-primary btn-sm">+ Post New Job</a>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="empty-state" th:if="${recentJobs.isEmpty()}">
+                        <p>No jobs posted yet. <a th:href="@{/employer/post-job}">Post your first job</a>.</p>
+                    </div>
+                    <div class="table-wrap" th:if="${!recentJobs.isEmpty()}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Job Title</th>
+                                    <th>Location</th>
+                                    <th>Salary</th>
+                                    <th>Posted On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="job : ${recentJobs}">
+                                    <td th:text="${job.title}">Title</td>
+                                    <td th:text="${job.location != null ? job.location : '-'}">Location</td>
+                                    <td th:text="${job.salary != null ? job.salary : '-'}">Salary</td>
+                                    <td th:text="${#temporals.format(job.createdAt, 'dd MMM yyyy')}">Date</td>
+                                    <td>
+                                        <a th:href="@{/employer/applicants/{id}(id=${job.id})}"
+                                           class="btn btn-outline btn-sm">View Applicants</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <a th:href="@{/employer/my-jobs}" class="btn btn-outline">View All Jobs</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

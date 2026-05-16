@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Applicants – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .applicant-card { border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; background: #fff; }
+        .applicant-header { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--gray-100); padding-bottom: 16px; }
+        .applicant-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gray-200); }
+        .applicant-photo-placeholder { width: 60px; height: 60px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; }
+        .applicant-info { flex: 1; }
+        .applicant-name { font-weight: 600; font-size: 1.1rem; color: var(--gray-900); }
+        .applicant-meta { font-size: 0.85rem; color: var(--gray-500); display: flex; gap: 12px; margin-top: 4px; }
+        .applicant-details { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.85rem; }
+        .applicant-details .col { display: flex; flex-direction: column; gap: 8px; }
+        .detail-row { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--gray-200); padding-bottom: 4px; }
+        .detail-row span:first-child { color: var(--gray-500); font-weight: 500; }
+        .detail-row span:last-child { font-weight: 600; color: var(--gray-900); }
+        .applicant-actions { background: var(--gray-50); padding: 12px 16px; border-radius: 0 0 var(--radius) var(--radius); margin: 0 -16px -16px; display: flex; justify-content: space-between; align-items: center; margin-top: 16px; border-top: 1px solid var(--gray-200); }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <!-- sidebar content same as before -->
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Employer</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/employer/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/employer/post-job}">
+                <span class="nav-icon">&#43;</span> Post a Job
+            </a>
+            <a th:href="@{/employer/my-jobs}" class="active">
+                <span class="nav-icon">&#9670;</span> My Jobs
+            </a>
+            <a th:href="@{/employer/profile}">
+                <span class="nav-icon">&#9633;</span> Company Profile
+            </a>
+            <a th:href="@{/employer/on-hold}">
+                <span class="nav-icon">&#8987;</span> On Hold
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Applicants for [[${job.title}]]</h3>
+            <a th:href="@{/employer/my-jobs}" class="btn btn-outline btn-sm">← Back to Jobs</a>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <div class="empty-state" th:if="${applications.isEmpty()}">
+                <div class="card" style="padding: 40px; text-align: center;">
+                    <p>No applicants yet for this job.</p>
+                </div>
+            </div>
+
+            <div th:if="${!applications.isEmpty()}">
+                <div class="applicant-card" th:each="app : ${applications}">
+                    <div class="applicant-header">
+                        <img th:if="${app.student.photoPath != null}" th:src="@{'/uploads/photos/' + ${app.student.photoPath}}" alt="Photo" class="applicant-photo"/>
+                        <div th:if="${app.student.photoPath == null}" class="applicant-photo-placeholder" th:text="${#strings.substring(app.student.name, 0, 1)}">U</div>
+                        <div class="applicant-info">
+                            <div class="applicant-name" th:text="${app.student.name}">Student Name</div>
+                            <div class="applicant-meta">
+                                <span>📧 [[${app.student.email}]]</span>
+                                <span th:if="${app.student.age != null}">🎂 [[${app.student.age}]] Yrs</span>
+                                <span th:if="${app.student.gender != null}">👤 [[${app.student.gender}]]</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge badge-blue"  th:if="${app.status.name() == 'APPLIED'}">Applied</span>
+                            <span class="badge badge-green" th:if="${app.status.name() == 'SHORTLISTED'}">Shortlisted</span>
+                            <span class="badge badge-red"   th:if="${app.status.name() == 'REJECTED'}">Rejected</span>
+                            <span class="badge badge-amber" th:if="${app.status.name() == 'ON_HOLD'}" style="background:#fef3c7; color:#d97706;">On Hold</span>
+                        </div>
+                    </div>
+
+                    <div class="applicant-details">
+                        <div class="col">
+                            <div class="detail-row"><span>Skills</span> <span th:text="${app.student.skills ?: '-'}"></span></div>
+                            <div class="detail-row"><span>Experience Co.</span> <span th:text="${app.student.experienceCompany != null ? #strings.replace(app.student.experienceCompany, '||', ', ') : '-'}"></span></div>
+                            <div class="detail-row"><span>Years Exp.</span> <span th:text="${app.student.experienceYears != null ? #strings.replace(app.student.experienceYears, '||', ', ') : '-'}"></span></div>
+                            <div class="detail-row"><span>Resume</span> 
+                                <span th:if="${app.student.resumePath != null}"><a th:href="@{'/uploads/resumes/' + ${app.student.resumePath}}" target="_blank">View Resume</a></span>
+                                <span th:if="${app.student.resumePath == null}">Not available</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="detail-row"><span>College/Uni</span> <span th:text="${app.student.collegeName != null ? #strings.replace(app.student.collegeName, '||', ', ') : '-'}"></span></div>
+                            <div class="detail-row"><span>Percentage</span> <span th:text="${app.student.collegePercentage != null ? #strings.replace(app.student.collegePercentage, '||', ', ') : '-'}"></span></div>
+                            <div class="detail-row"><span>10th Details</span> <span th:text="${app.student.tenthMarks ?: '-'}"></span></div>
+                            <div class="detail-row"><span>12th Details</span> <span th:text="${app.student.twelfthMarks ?: '-'}"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Application Questions Section -->
+                    <div th:if="${job.applicationQuestions != null}" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-100);">
+                        <h5 style="margin-bottom: 12px; font-size: 0.9rem; color: var(--gray-600);">Application Responses:</h5>
+                        <div style="font-size: 0.85rem; display: grid; gap: 12px;">
+                            <div th:each="q, iter : ${#strings.arraySplit(job.applicationQuestions, '||')}">
+                                <strong style="display:block; color: var(--gray-800);" th:text="${q}">Question</strong>
+                                <p style="color: var(--gray-600); margin: 4px 0 0;" 
+                                   th:text="${#strings.arraySplit(app.answers, '||')[iter.index] ?: 'N/A'}"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="applicant-actions">
+                        <span class="text-muted">Applied on [[${#temporals.format(app.appliedAt, 'dd MMM yyyy')}]]</span>
+                        <div class="actions-group" style="display:flex; gap: 8px;" th:if="${app.status.name() != 'REJECTED'}">
+                            <form method="post" th:action="@{/employer/application/{appId}/status(appId=${app.id})}">
+                                <input type="hidden" name="status" value="SHORTLISTED"/>
+                                <input type="hidden" name="jobId" th:value="${job.id}"/>
+                                <button type="submit" class="btn btn-success btn-sm" th:disabled="${app.status.name() == 'SHORTLISTED'}">Shortlist</button>
+                            </form>
+                            <form method="post" th:action="@{/employer/application/{appId}/status(appId=${app.id})}">
+                                <input type="hidden" name="status" value="ON_HOLD"/>
+                                <input type="hidden" name="jobId" th:value="${job.id}"/>
+                                <button type="submit" class="btn btn-outline btn-sm" style="border-color:var(--primary); color:var(--primary);" th:disabled="${app.status.name() == 'ON_HOLD'}">Hold</button>
+                            </form>
+                            <form method="post" th:action="@{/employer/application/{appId}/status(appId=${app.id})}">
+                                <input type="hidden" name="status" value="REJECTED"/>
+                                <input type="hidden" name="jobId" th:value="${job.id}"/>
+                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

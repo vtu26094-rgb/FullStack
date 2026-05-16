@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Dashboard – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="active">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Admin Dashboard</h3>
+            <span class="user-info">Admin: <strong th:text="${adminName}">admin</strong></span>
+        </div>
+
+        <div class="page-content">
+            <!-- Platform Stats -->
+            <h2 class="page-title">Platform Overview</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value blue" th:text="${totalUsers}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Students</div>
+                    <div class="stat-value green" th:text="${totalStudents}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Employers</div>
+                    <div class="stat-value amber" th:text="${totalEmployers}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Jobs</div>
+                    <div class="stat-value blue" th:text="${totalJobs}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Applications</div>
+                    <div class="stat-value green" th:text="${totalApplications}">0</div>
+                </div>
+            </div>
+
+            <!-- Recent Users -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Registered Users</h4>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="empty-state" th:if="${recentUsers.isEmpty()}">
+                        <p>No users registered yet.</p>
+                    </div>
+                    <div class="table-wrap" th:if="${!recentUsers.isEmpty()}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Company / Skills</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user, stat : ${recentUsers}">
+                                    <td th:text="${stat.count}">1</td>
+                                    <td th:text="${user.name}">Name</td>
+                                    <td th:text="${user.username}">Username</td>
+                                    <td th:text="${user.email}">Email</td>
+                                    <td>
+                                        <span class="badge badge-blue"  th:if="${user.role.name() == 'STUDENT'}">Student</span>
+                                        <span class="badge badge-amber" th:if="${user.role.name() == 'EMPLOYER'}">Employer</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${user.role.name() == 'EMPLOYER'}"
+                                              th:text="${user.company != null ? user.company : '-'}">Company</span>
+                                        <span th:if="${user.role.name() == 'STUDENT'}"
+                                              th:text="${user.skills != null ? #strings.abbreviate(user.skills, 40) : '-'}">Skills</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

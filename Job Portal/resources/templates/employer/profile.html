@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Company Profile – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Employer</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/employer/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/employer/post-job}">
+                <span class="nav-icon">&#43;</span> Post a Job
+            </a>
+            <a th:href="@{/employer/my-jobs}">
+                <span class="nav-icon">&#9670;</span> My Jobs
+            </a>
+            <a th:href="@{/employer/profile}" class="active">
+                <span class="nav-icon">&#9633;</span> Company Profile
+            </a>
+            <a th:href="@{/employer/on-hold}">
+                <span class="nav-icon">&#8987;</span> On Hold
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Company Profile</h3>
+            <span class="user-info" th:text="${employer.username}">username</span>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <div class="card" style="max-width:600px;">
+                <div class="card-header"><h4>Update Profile</h4></div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/employer/profile}" th:object="${profileDto}">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="empName">Contact Name</label>
+                                <input id="empName" class="form-control" type="text"
+                                       th:field="*{name}" required/>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="empEmail">Email</label>
+                                <input id="empEmail" class="form-control" type="email"
+                                       th:field="*{email}" required/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="empCompany">Company Name</label>
+                            <input id="empCompany" class="form-control" type="text"
+                                   th:field="*{company}" placeholder="Company / Organization name"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="empLocation">Headquarters Location</label>
+                            <input id="empLocation" class="form-control" type="text"
+                                   th:field="*{location}" placeholder="City, State"/>
+                        </div>
+                        <button id="saveEmpProfileBtn" type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

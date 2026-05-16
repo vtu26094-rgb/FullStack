@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Dashboard – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Student</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/student/dashboard}" class="active">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/student/profile}">
+                <span class="nav-icon">&#9633;</span> My Profile
+            </a>
+            <a th:href="@{/student/jobs}">
+                <span class="nav-icon">&#9670;</span> Browse Jobs
+            </a>
+            <a th:href="@{/student/applications}">
+                <span class="nav-icon">&#9654;</span> My Applications
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Dashboard</h3>
+            <span class="user-info">Welcome, <strong th:text="${student.name}">Student</strong></span>
+        </div>
+
+        <div class="page-content">
+            <!-- Flash messages -->
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger"  th:if="${error}"   th:text="${error}"></div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Applied</div>
+                    <div class="stat-value blue" th:text="${totalApplied}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Shortlisted</div>
+                    <div class="stat-value green" th:text="${shortlisted}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Rejected</div>
+                    <div class="stat-value red" th:text="${rejected}">0</div>
+                </div>
+            </div>
+
+            <!-- Profile Completion Alert -->
+            <div class="alert alert-info" th:if="${student.skills == null or student.skills.isEmpty()}">
+                Your profile is incomplete. <a th:href="@{/student/profile}">Complete your profile</a> to attract employers.
+            </div>
+
+            <!-- Recent Applications -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Applications</h4>
+                    <a th:href="@{/student/applications}" class="btn btn-outline btn-sm">View All</a>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div th:if="${recentApplications.isEmpty()}" class="empty-state">
+                        <p>No applications yet. <a th:href="@{/student/jobs}">Browse jobs</a> and start applying!</p>
+                    </div>
+                    <div class="table-wrap" th:if="${!recentApplications.isEmpty()}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Job Title</th>
+                                    <th>Company</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Applied On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="app : ${recentApplications}">
+                                    <td th:text="${app.job.title}">Title</td>
+                                    <td th:text="${app.job.employer.company != null ? app.job.employer.company : app.job.employer.name}">Company</td>
+                                    <td th:text="${app.job.location}">Location</td>
+                                    <td>
+                                        <span class="badge badge-blue"  th:if="${app.status.name() == 'APPLIED'}">Applied</span>
+                                        <span class="badge badge-green" th:if="${app.status.name() == 'SHORTLISTED'}">Shortlisted</span>
+                                        <span class="badge badge-red"   th:if="${app.status.name() == 'REJECTED'}">Rejected</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(app.appliedAt, 'dd MMM yyyy')}">Date</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Quick Links -->
+            <div style="margin-top:20px;display:flex;gap:12px;">
+                <a th:href="@{/student/jobs}" class="btn btn-primary">Browse All Jobs</a>
+                <a th:href="@{/student/profile}" class="btn btn-outline">Update Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

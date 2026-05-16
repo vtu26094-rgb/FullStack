@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Browse Jobs – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Student</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/student/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/student/profile}">
+                <span class="nav-icon">&#9633;</span> My Profile
+            </a>
+            <a th:href="@{/student/jobs}" class="active">
+                <span class="nav-icon">&#9670;</span> Browse Jobs
+            </a>
+            <a th:href="@{/student/applications}">
+                <span class="nav-icon">&#9654;</span> My Applications
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Browse Jobs</h3>
+            <span class="user-info" th:text="${student.name}">Student</span>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger"  th:if="${error}"   th:text="${error}"></div>
+
+            <!-- Search & Filter -->
+            <form method="get" th:action="@{/student/jobs}" class="search-bar">
+                <div class="form-group">
+                    <label class="form-label" for="searchKeyword">Keyword</label>
+                    <input id="searchKeyword" class="form-control" type="text" name="keyword"
+                           th:value="${keyword}" placeholder="Job title or description"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="searchLocation">Location</label>
+                    <input id="searchLocation" class="form-control" type="text" name="location"
+                           th:value="${location}" placeholder="City or Remote"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="searchSkills">Skills</label>
+                    <input id="searchSkills" class="form-control" type="text" name="skills"
+                           th:value="${skills}" placeholder="e.g. Java, ReactJS"/>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-end;">
+                    <button id="searchBtn" type="submit" class="btn btn-primary">Search</button>
+                    <a th:href="@{/student/jobs}" class="btn btn-outline">Clear</a>
+                </div>
+            </form>
+
+            <!-- Jobs Count -->
+            <p class="text-muted mb-16" th:text="'Showing ' + ${jobs.size()} + ' job(s)'"></p>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${jobs.isEmpty()}">
+                <p>No jobs found matching your search. Try different keywords.</p>
+            </div>
+
+            <!-- Job Listings -->
+            <div class="jobs-list" th:if="${!jobs.isEmpty()}">
+                <div class="job-card" th:each="job : ${jobs}">
+                    <div class="job-info">
+                        <h4 th:text="${job.title}">Job Title</h4>
+                        <div class="job-meta">
+                            <span th:text="${job.employer.company != null ? job.employer.company : job.employer.name}">Company</span>
+                            <span th:if="${job.location != null}" th:text="'📍 ' + ${job.location}">Location</span>
+                            <span th:if="${job.salary != null}"   th:text="'💰 ' + ${job.salary}">Salary</span>
+                        </div>
+                        <p style="font-size:.82rem;color:#6b7280;margin-top:6px;max-width:600px;"
+                           th:text="${#strings.abbreviate(job.description, 120)}">Description</p>
+                        <div class="job-tags" th:if="${job.skillsRequired != null}">
+                            <span class="job-tag" th:each="skill : ${#strings.arraySplit(job.skillsRequired, ',')}"
+                                  th:text="${#strings.trim(skill)}">Skill</span>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <!-- Apply button & View button -->
+                        <div style="display:flex;gap:8px;justify-content:flex-end;">
+                            <a th:href="@{/student/jobs/{id}(id=${job.id})}" class="btn btn-outline btn-sm">View Details</a>
+                            <th:block th:if="${applicationService.hasApplied(student, job)}">
+                                <button class="btn btn-primary btn-sm" disabled style="background-color: var(--gray-400); border-color: var(--gray-400); cursor: not-allowed;">Already Applied</button>
+                            </th:block>
+                            <th:block th:unless="${applicationService.hasApplied(student, job)}">
+                                <a th:href="@{/student/jobs/{id}(id=${job.id})}" class="btn btn-primary btn-sm">Apply Now</a>
+                            </th:block>
+                        </div>
+                        <span class="text-muted" th:text="${#temporals.format(job.createdAt, 'dd MMM')}">Date</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

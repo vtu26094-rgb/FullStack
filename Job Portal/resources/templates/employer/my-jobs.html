@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Jobs – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Employer</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/employer/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/employer/post-job}">
+                <span class="nav-icon">&#43;</span> Post a Job
+            </a>
+            <a th:href="@{/employer/my-jobs}" class="active">
+                <span class="nav-icon">&#9670;</span> My Jobs
+            </a>
+            <a th:href="@{/employer/profile}">
+                <span class="nav-icon">&#9633;</span> Company Profile
+            </a>
+            <a th:href="@{/employer/on-hold}">
+                <span class="nav-icon">&#8987;</span> On Hold
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>My Job Postings</h3>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <div class="flex-between mb-16">
+                <p class="text-muted" th:text="${jobs.size()} + ' job(s) posted'">0 jobs</p>
+                <a th:href="@{/employer/post-job}" class="btn btn-primary btn-sm">+ Post New Job</a>
+            </div>
+
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="empty-state" th:if="${jobs.isEmpty()}">
+                        <p>You haven't posted any jobs yet.</p>
+                        <a th:href="@{/employer/post-job}" class="btn btn-primary" style="margin-top:12px;">Post Your First Job</a>
+                    </div>
+
+                    <div class="table-wrap" th:if="${!jobs.isEmpty()}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Location</th>
+                                    <th>Salary</th>
+                                    <th>Posted On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="job, stat : ${jobs}">
+                                    <td th:text="${stat.count}">1</td>
+                                    <td>
+                                        <strong th:text="${job.title}">Title</strong>
+                                        <div class="text-muted" th:if="${job.skillsRequired}"
+                                             th:text="${#strings.abbreviate(job.skillsRequired, 50)}">Skills</div>
+                                    </td>
+                                    <td th:text="${job.location != null ? job.location : '-'}">-</td>
+                                    <td th:text="${job.salary != null ? job.salary : '-'}">-</td>
+                                    <td th:text="${#temporals.format(job.createdAt, 'dd MMM yyyy')}">Date</td>
+                                    <td>
+                                        <div class="actions-group">
+                                            <a th:href="@{/employer/applicants/{id}(id=${job.id})}"
+                                               class="btn btn-outline btn-sm">Applicants</a>
+                                            <a th:href="@{/employer/edit-job/{id}(id=${job.id})}"
+                                               class="btn btn-primary btn-sm">Edit</a>
+                                            <form method="post"
+                                                  th:action="@{/employer/delete-job/{id}(id=${job.id})}"
+                                                  onsubmit="return confirm('Delete this job?');"
+                                                  style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

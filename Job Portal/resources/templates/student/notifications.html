@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Notifications – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Student</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/student/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/student/jobs}">
+                <span class="nav-icon">&#128269;</span> Browse Jobs
+            </a>
+            <a th:href="@{/student/applications}">
+                <span class="nav-icon">&#9670;</span> My Applications
+            </a>
+            <a th:href="@{/student/profile}">
+                <span class="nav-icon">&#9633;</span> My Profile
+            </a>
+            <a th:href="@{/notifications}" class="active">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Notifications</h3>
+        </div>
+
+        <div class="page-content">
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <div class="flex-between mb-16">
+                <p class="text-muted" th:text="${notifications.size()} + ' notification(s)'">0 notifications</p>
+                <form th:action="@{/notifications/mark-read}" method="post" th:if="${unreadNotificationsCount > 0}">
+                    <button type="submit" class="btn btn-outline btn-sm">Mark All as Read</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="empty-state" th:if="${notifications.isEmpty()}">
+                        <p>You have no notifications yet.</p>
+                    </div>
+
+                    <div class="table-wrap" th:if="${!notifications.isEmpty()}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Message</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="notification : ${notifications}" th:style="${!notification.read ? 'font-weight: bold; background-color: #f8f9fa;' : ''}">
+                                    <td>
+                                        <span th:if="${!notification.read}" style="color: blue;">&#9679; Unread</span>
+                                        <span th:if="${notification.read}" class="text-muted">Read</span>
+                                    </td>
+                                    <td th:text="${notification.message}">Message</td>
+                                    <td th:text="${#temporals.format(notification.createdAt, 'dd MMM yyyy HH:mm')}">Date</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

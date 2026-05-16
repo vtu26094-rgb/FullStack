@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Applications – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Student</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/student/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/student/profile}">
+                <span class="nav-icon">&#9633;</span> My Profile
+            </a>
+            <a th:href="@{/student/jobs}">
+                <span class="nav-icon">&#9670;</span> Browse Jobs
+            </a>
+            <a th:href="@{/student/applications}" class="active">
+                <span class="nav-icon">&#9654;</span> My Applications
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>My Applications</h3>
+            <span class="user-info" th:text="${student.name}">Student</span>
+        </div>
+
+        <div class="page-content">
+            <!-- Empty state -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Application Tracker</h4>
+                    <span class="badge badge-blue" th:text="${applications.size()} + ' Total'">0 Total</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="empty-state" th:if="${applications.isEmpty()}">
+                        <p>You haven't applied to any jobs yet.</p>
+                        <a th:href="@{/student/jobs}" class="btn btn-primary" style="margin-top:12px;">Browse Jobs</a>
+                    </div>
+
+                    <div class="table-wrap" th:if="${!applications.isEmpty()}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Job Title</th>
+                                    <th>Company</th>
+                                    <th>Location</th>
+                                    <th>Salary</th>
+                                    <th>Status</th>
+                                    <th>Applied On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="app, stat : ${applications}">
+                                    <td th:text="${stat.count}">1</td>
+                                    <td th:text="${app.job.title}">Job Title</td>
+                                    <td th:text="${app.job.employer.company != null ? app.job.employer.company : app.job.employer.name}">Company</td>
+                                    <td th:text="${app.job.location != null ? app.job.location : '-'}">Location</td>
+                                    <td th:text="${app.job.salary != null ? app.job.salary : '-'}">Salary</td>
+                                    <td>
+                                        <span class="badge badge-blue"  th:if="${app.status.name() == 'APPLIED'}">Applied</span>
+                                        <span class="badge badge-green" th:if="${app.status.name() == 'SHORTLISTED'}">Shortlisted ✓</span>
+                                        <span class="badge badge-red"   th:if="${app.status.name() == 'REJECTED'}">Rejected</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(app.appliedAt, 'dd MMM yyyy')}">Date</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

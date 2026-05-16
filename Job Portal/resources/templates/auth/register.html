@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Register – Job Portal</title>
+    <meta name="description" content="Create your account on Job Portal"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="auth-page">
+    <div class="auth-card" style="max-width:520px;">
+        <div class="brand">
+            <h1>Job Portal</h1>
+            <p>Create a new account</p>
+        </div>
+
+        <div class="alert alert-danger" th:if="${usernameError}" th:text="${usernameError}"></div>
+        <div class="alert alert-danger" th:if="${emailError}"    th:text="${emailError}"></div>
+
+        <form method="post" th:action="@{/register}" th:object="${registerDto}">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="regName">Full Name</label>
+                    <input id="regName" class="form-control" type="text" th:field="*{name}"
+                           placeholder="Your full name" required/>
+                    <span style="color:#dc2626;font-size:.78rem;" th:errors="*{name}"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regUsername">Username</label>
+                    <input id="regUsername" class="form-control" type="text" th:field="*{username}"
+                           placeholder="Choose a username" required/>
+                    <span style="color:#dc2626;font-size:.78rem;" th:errors="*{username}"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="regEmail">Email</label>
+                <input id="regEmail" class="form-control" type="email" th:field="*{email}"
+                       placeholder="your@email.com" required/>
+                <span style="color:#dc2626;font-size:.78rem;" th:errors="*{email}"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="regPassword">Password</label>
+                <input id="regPassword" class="form-control" type="password" th:field="*{password}"
+                       placeholder="Minimum 6 characters" required/>
+                <span style="color:#dc2626;font-size:.78rem;" th:errors="*{password}"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="regRole">Register As</label>
+                <select id="regRole" class="form-control form-select" th:field="*{role}"
+                        onchange="toggleEmployerFields(this.value)" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="STUDENT">Student / Job Seeker</option>
+                    <option value="EMPLOYER">Employer / Company</option>
+                </select>
+            </div>
+
+            <!-- Employer-only fields -->
+            <div id="employerFields" style="display:none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="regCompany">Company Name</label>
+                        <input id="regCompany" class="form-control" type="text" th:field="*{company}"
+                               placeholder="Company name"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="regLocation">Location</label>
+                        <input id="regLocation" class="form-control" type="text" th:field="*{location}"
+                               placeholder="City / State"/>
+                    </div>
+                </div>
+            </div>
+
+            <button id="registerBtn" type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;font-size:.875rem;color:#6b7280;">
+            Already have an account?
+            <a th:href="@{/login}">Sign in here</a>
+        </p>
+    </div>
+</div>
+
+<script>
+function toggleEmployerFields(role) {
+    document.getElementById('employerFields').style.display = (role === 'EMPLOYER') ? 'block' : 'none';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Post a Job – Job Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>Job Portal</h2>
+            <span>Employer</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/employer/dashboard}">
+                <span class="nav-icon">&#9632;</span> Dashboard
+            </a>
+            <a th:href="@{/employer/post-job}" class="active">
+                <span class="nav-icon">&#43;</span> Post a Job
+            </a>
+            <a th:href="@{/employer/my-jobs}">
+                <span class="nav-icon">&#9670;</span> My Jobs
+            </a>
+            <a th:href="@{/employer/profile}">
+                <span class="nav-icon">&#9633;</span> Company Profile
+            </a>
+            <a th:href="@{/employer/on-hold}">
+                <span class="nav-icon">&#8987;</span> On Hold
+            </a>
+                    <a th:href="@{/notifications}">
+                <span class="nav-icon">&#128276;</span> Notifications
+                <span class="badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px;" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}"></span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}">&#10006; Sign Out</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h3>Post a New Job</h3>
+        </div>
+
+        <div class="page-content">
+            <div class="card" style="max-width:700px;">
+                <div class="card-header"><h4>Job Details</h4></div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/employer/post-job}" th:object="${jobDto}">
+
+                        <div class="form-group">
+                            <label class="form-label" for="jobTitle">Job Title <span style="color:#dc2626;">*</span></label>
+                            <input id="jobTitle" class="form-control" type="text"
+                                   th:field="*{title}" placeholder="e.g. Java Backend Developer" required/>
+                            <span style="color:#dc2626;font-size:.78rem;" th:errors="*{title}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="jobDesc">Job Description <span style="color:#dc2626;">*</span></label>
+                            <textarea id="jobDesc" class="form-control"
+                                      th:field="*{description}" rows="5"
+                                      placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                            <span style="color:#dc2626;font-size:.78rem;" th:errors="*{description}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="jobSkills">Skills Required</label>
+                            <input id="jobSkills" class="form-control" type="text"
+                                   th:field="*{skillsRequired}"
+                                   placeholder="e.g. Java, Spring Boot, MySQL (comma separated)"/>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="jobSalary">Salary / CTC</label>
+                                <input id="jobSalary" class="form-control" type="text"
+                                       th:field="*{salary}" placeholder="e.g. 6-10 LPA"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="jobLocation">Location</label>
+                                <input id="jobLocation" class="form-control" type="text"
+                                       th:field="*{location}" placeholder="e.g. Bangalore / Remote"/>
+                            </div>
+                        </div>
+
+                        <div class="card mb-16" style="background: var(--gray-50); border: 1px dashed var(--gray-300);">
+                            <div class="card-header" style="background: transparent;">
+                                <h5 style="margin:0;">Application Questionnaire</h5>
+                                <p style="font-size:0.75rem; color:var(--gray-500); margin-top:4px;">Add questions that applicants must answer.</p>
+                            </div>
+                            <div class="card-body">
+                                <div id="questions-container"></div>
+                                <button type="button" class="btn btn-outline btn-sm mt-8" onclick="addQuestion()">+ Add Question</button>
+                                <input type="hidden" th:field="*{applicationQuestions}" id="hiddenQuestions"/>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:12px;margin-top:8px;">
+                            <button id="postJobBtn" type="submit" class="btn btn-primary">Post Job</button>
+                            <a th:href="@{/employer/my-jobs}" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const initQuestionsStr = [[${jobDto.applicationQuestions != null ? jobDto.applicationQuestions : 'Why do you want to choose this job?||What are your core strengths?||What are your career goals?||How can you contribute to this company?'}]];
+    const initQuestions = initQuestionsStr ? initQuestionsStr.split('||') : [];
+
+    function addQuestion(text = '') {
+        const container = document.getElementById('questions-container');
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.style.display = 'flex';
+        div.style.gap = '8px';
+        div.style.marginBottom = '12px';
+        div.innerHTML = `
+            <input type="text" class="form-control dyn-question" value="${text}" placeholder="Enter question..." required/>
+            <button type="button" class="btn btn-outline text-red" onclick="this.parentElement.remove()" title="Remove Question">✕</button>
+        `;
+        container.appendChild(div);
+    }
+
+    window.onload = function() {
+        if (initQuestions.length > 0) {
+            initQuestions.forEach(q => addQuestion(q));
+        } else {
+            addQuestion('Why do you want to choose this job?');
+        }
+    }
+
+    document.querySelector('form').onsubmit = function() {
+        const questions = Array.from(document.querySelectorAll('.dyn-question'))
+            .map(el => el.value.trim())
+            .filter(q => q !== '')
+            .join('||');
+        document.getElementById('hiddenQuestions').value = questions;
+    };
+</script>
+</body>
+</html>
